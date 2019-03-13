@@ -27,4 +27,4 @@ CREATE TABLE [dbo].[UserTrello](
 
 ## Документация
 
-Документацию API Trello.com можно найти по адресу [TRELLO REST API]: https://developers.trello.com/reference/
+Документацию API Trello.com можно найти по адресу [TRELLO REST API](https://developers.trello.com/reference/ "API web доски Trello.com")
