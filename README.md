@@ -1,10 +1,6 @@
 # IntraService2Trello
 Пакет позволяет связать известную service desk IntraServer с web доской Trello.com. Программа на Python вызывается с заданной периодичностью, проверяет изменные статусы задач, по заданным пользователям, и обновляет доски пользователей Trello.com, используя API вызовы Trello. 
 ## Установка
-
-
-## Настройка
-
 Для пользователей trello, необходимо создать таблицу на сервере IntraService.В моем случае это MS SQL Server.
 ```
 CREATE TABLE [dbo].[UserTrello](
@@ -15,8 +11,8 @@ CREATE TABLE [dbo].[UserTrello](
     [ViewClosed] [int] NOT NULL
 ) ON [PRIMARY]
 ```
-Возможно использование таблицы dbo.[User]. Для этого необходимо сделать следующие изменения ...
 
+## Настройка
 
 
 ## Поддержка 
@@ -26,6 +22,8 @@ CREATE TABLE [dbo].[UserTrello](
 <strukovsv@mail.ru>.
 
 ## Лицензия
+
+##Что дальше?
 
 ## Документация
 
