@@ -1,2 +1,2 @@
 # IntraService2Trello
-Python procedure create and update board into Trello from service desk "IntraServer"
+Пакет позволяет связать известную service desk IntraServer с web доской Trello.com. Программа на Python вызывается с заданной периодичностью, проверяет изменные статусы задач, по заданным пользователям, и обновляет доски пользователей Trello.com, используя API вызовы Trello. 
