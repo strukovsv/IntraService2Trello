@@ -6,13 +6,13 @@
 ## Настройка
 
 Для пользователей trello, необходимо создать таблицу на сервере IntraService.В моем случае это MS SQL Server.
-	CREATE TABLE [dbo].[UserTrello](
-		[UserId] [int] NOT NULL,
-		[AppKey] [nvarchar](100) NOT NULL,
-		[Token] [nvarchar](100) NOT NULL,
-		[HistoryId] [int] NOT NULL,
-		[ViewClosed] [int] NOT NULL
-	) ON [PRIMARY]
+    CREATE TABLE [dbo].[UserTrello](
+        [UserId] [int] NOT NULL,
+        [AppKey] [nvarchar](100) NOT NULL,
+        [Token] [nvarchar](100) NOT NULL,
+        [HistoryId] [int] NOT NULL,
+        [ViewClosed] [int] NOT NULL
+    ) ON [PRIMARY]
 
 Возможно использование таблицы dbo.[User]. Для этого необходимо сделать следующие изменения ...
 
