@@ -7,7 +7,6 @@
 
 Для пользователей trello, необходимо создать таблицу на сервере IntraService.В моем случае это MS SQL Server.
 ```
-//sql code
 CREATE TABLE [dbo].[UserTrello](
     [UserId] [int] NOT NULL,
     [AppKey] [nvarchar](100) NOT NULL,
