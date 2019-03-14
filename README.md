@@ -32,5 +32,5 @@ CREATE TABLE [dbo].[UserTrello](
 - Возможно использовать потоки python, для отказа от планировщика задач.
 - Возможно изменение внешнего вида задачи, для удобства работы.
 ## Документация
-Документацию API Trello.com можно найти по адресу <https://developers.trello.com/reference/>
-Ключ и токен API разработчика получаем по адресу <https://trello.com/app-key>
+- Документацию API Trello.com можно найти по адресу <https://developers.trello.com/reference/>
+- Ключ и токен API разработчика получаем по адресу <https://trello.com/app-key>
