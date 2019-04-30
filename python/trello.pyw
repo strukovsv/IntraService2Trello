@@ -6,11 +6,11 @@ import datetime
 import json
 
 param = {}
-param["servicedescpath"] = "http://intraservice:8081/" 
-param["ConnectString"]   = "DRIVER={SQL Server};SERVER=addr;DATABASE=base;UID=user;PWD=;Trusted_Connection=true"
+param["servicedescpath"] = "http://172.16.10.252:8081/" 
+param["ConnectString"]   = "DRIVER={SQL Server};SERVER=172.16.10.252;DATABASE=IntraService;UID=ETK\SergeySt;PWD=;Trusted_Connection=true"
 param["board_name"]      = "IntraService"
 
-param["debug_path"] = "C:\\Prjects\\UpdateTrello\\trello_{0}.log"
+param["debug_path"] = "C:\\Projects\\UpdateTrello\\log\\trello_{0}.log"
 param["debug_level"] = 10
 
 debugs = {}    
@@ -129,6 +129,11 @@ class DB_reader():
                      # Новые сообщения
                      ,"newcomment"  : task.newcomment
                      }
+                     
+            if 1:         
+                if (object["service"] == "Инциденты") and (object["status"] == "Свободные"):
+                    object["status"] = "Инциденты"
+            
             if (task.viewclosed == 0) and (status == "Закрыта/Отменена"):
                 object["status"] = "Не показывать"
                      
@@ -151,6 +156,12 @@ class DB_reader():
             # Добавить в описание задачи
             comments.append("[{2}]({0}Task/ViewFile/{1})".format(self.servicedescpath, attachment.id, attachment.name))             
         
+        if 1:
+            # Первое предложение
+            description = task.description.split(".")[0]
+            object["description"] = "#{0}. {2} {1}.".format(task_id, description, "{0} ({1}).".format(task.creatorname, task.creatorphone) if task.creatorphone else task.creatorname)
+            comments.append("###{0}".format(" ".join(task.description.split("\n"))))
+            
         # Комментарии. Оставим только 3 последних комментария
         for comment in self.select("""
             select top 3 e.[Name]  as editorname
@@ -164,7 +175,7 @@ class DB_reader():
             # Добавить дату и кто комментировал + телефон
             comments.append("###{0} : {1}".format(comment.date.strftime("%d.%m.%Y %H:%M:%S"), "{0} ({1})".format(comment.editorname, comment.editorphone) if comment.editorphone else comment.editorname))
             # Добавить комментарий
-            comments.append(comment.comment)
+            comments.append(comment.comment.replace(">", ""))
         
         # Вернуть объект, attachments и комментарии    
         return {"data" : object, "attachments" : attachments, "comment" : "\n".join(comments)}    
@@ -298,15 +309,15 @@ class Trello():
             
     # Найти задачу в trello
     def find_card(self, card_name, board_id):
-        card_id = None
+        found_card = None
         # Получить все задачи на доске
         for card in self.get_request("/boards/{0}/cards".format(board_id)).json():
             # Номер задачи в trello и заголовке задачи равны
             if card["name"][0:7] == card_name[0:7]:
                 # Вернуть идентификатор карточки в trello
-                card_id = card["id"]
+                found_card = card
                 break
-        return card_id        
+        return found_card  
 
     # Удалить карточку в trello        
     def delete_card(self, card_id):
@@ -332,7 +343,13 @@ class Trello():
         board_id = self.get_board(options["board"])
      
         # Найдем и удалим карточку по задаче
-        self.delete_card(self.find_card(base["data"]["description"], board_id))
+        found_card = self.find_card(base["data"]["description"], board_id)
+        if found_card:
+            # Если руками перенесли задачу в TODAY, то оставим список там для заданных списков
+            if (found_card["idList"] == self.get_list("TODAY", board_id)) and ((options["list"] == "В работе") or (options["list"] == "Открыта")):
+                debug('Оставим задачу {0} в "TODAY".'.format(taskid), "error")
+                options["list"] = "TODAY"
+            self.delete_card(found_card["id"])
         
         if options["list"] == "Не показывать":
             debug('Закрытые задачи не показываем для данного пользователя', "update task")
@@ -437,7 +454,7 @@ def Main():
                                     HistoryId, 
                                     (select u.Name from dbo.[User] u where u.id = ut.UserId) as username,
                                     ViewClosed 
-                              FROM UserTrello ut 
+                              FROM UserTrello ut /*where userid = 3605*/
                               ORDER BY 1
                               """):
             try:
@@ -453,9 +470,29 @@ def Main():
                 list_task = []
                 # Получить список свободных заявок, для данного пользователя
                 for x in db.select("""
-                    SELECT task.Id
+                    SELECT task.Id 
                     FROM [IntraService].[dbo].[Task] task
+                         left join dbo.[Service] s on task.ServiceId = s.id
                     WHERE task.Executors is null
+                      and s.NameXml.value('(/Language/Ru)[1]', 'varchar(100)') = 'Инциденты'
+                      and task.StatusId not in (41, 42, 44) -- Выполнена, Закрыта, Отменена
+                      and task.ExecutorGroupId in (
+                          select ege.ExecutorGroupId 
+                          from [IntraService].[dbo].[ExecutorGroupExecutor] ege 
+                          where ege.UserId = {0})
+                    """.format(user.UserId)):
+                    list_task.append(int(x[0])) 
+                debug("Update free list tasks", "program")
+                trello.update_free_list(list_task, board_name, "Инциденты")
+
+                list_task = []
+                # Получить список свободных заявок, для данного пользователя
+                for x in db.select("""
+                    SELECT task.Id 
+                    FROM [IntraService].[dbo].[Task] task
+                         left join dbo.[Service] s on task.ServiceId = s.id
+                    WHERE task.Executors is null
+                      and s.NameXml.value('(/Language/Ru)[1]', 'varchar(100)') <> 'Инциденты'
                       and task.StatusId not in (41, 42, 44) -- Выполнена, Закрыта, Отменена
                       and task.ExecutorGroupId in (
                           select ege.ExecutorGroupId 
