@@ -1,0 +1,1 @@
+.\venv\Scripts\python.exe "C:\Projects\UpdateTrello\trello.pyw"

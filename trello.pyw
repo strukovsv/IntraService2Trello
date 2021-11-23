@@ -35,8 +35,8 @@ debugs["delete api"]                = 0
 debugs["get board"]                 = 0
 debugs["get list"]                  = 0
 debugs["get label"]                 = 0
-debugs["delete card"]               = 0
-debugs["update task"]               = 0
+debugs["delete card"]               = 10
+debugs["update task"]               = 10
 debugs["erase old cards"]           = 10
 debugs["update free list"]          = 10
 
