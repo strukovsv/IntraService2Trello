@@ -1,1 +1,1 @@
-.\venv\Scripts\python.exe "C:\Projects\UpdateTrello\trello.pyw"
+C:\Projects\UpdateTrello\venv\Scripts\python.exe "C:\Projects\UpdateTrello\trello.pyw"
